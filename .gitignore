@@ -1,0 +1,8 @@
+*.o
+genconv.sym
+genconv.map
+*.lst
+genconv.lss
+genconv.eep
+genconv.elf
+.dep
