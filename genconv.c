@@ -23,34 +23,96 @@
 
 #include <avr/io.h>
 #include <avr/pgmspace.h>
+#include <avr/interrupt.h>
 #include <util/delay.h>
-#include "usb_debug_only.h"
-#include "print.h"
+#include "usb_keyboard.h"
 
-#define CPU_PRESCALE(n)	(CLKPR = 0x80, CLKPR = (n))
+
+#define CPU_PRESCALE(n) (CLKPR = 0x80, CLKPR = (n))
+
+/* Notes:
+ * For C64 mode:
+ * 0 = Right
+ * 1 = Left
+ * 2 = Down
+ * 3 = Up
+ * 6 = B1
+ * 4 = B2
+ * 
+ * For Genesis, 5 should be the MUX
+ */ 
+
+uint8_t number_keys[]=
+    {KEY_0,KEY_1,KEY_2,KEY_3,KEY_4,KEY_5,KEY_6,KEY_7};
+
+uint16_t idle_count=0;
 
 int main(void)
 {
-    unsigned char i;
+    uint8_t mux1, mux0, mask, i;
+    uint8_t mux1_prev=0xFF, mux0_prev=0xFF;
 
-    // set for 16 MHz clock, and make sure the LED is off
+    // set for 16 MHz clock
     CPU_PRESCALE(0);
     
-    DDRB = 0x00;
+    DDRB = 0x00 | (1 << 5);
     PORTB = 0xFF;
 
-    // initialize the USB, but don't want for the host to
-    // configure.  The first several messages sent will be
-    // lost because the PC hasn't configured the USB yet,
-    // but we care more about blinking than debug messages!
+    // Initialize the USB, and then wait for the host to set configuration.
+    // If the Teensy is powered without a PC connected to the USB port,
+    // this will wait forever.
     usb_init();
+    while (!usb_configured()) {}
 
-    // blink morse code messages!
+    // Wait an extra second for the PC's operating system to load drivers
+    // and do whatever it does to actually be ready for input
+    _delay_ms(1000);
+
     while (1)
     {
-        /* Just continually debug the input states */
-        phex(PINB);
-        print("\n");
-        _delay_ms(500);
+        // read all port B and port D pins
+        mux1 = PINB;
+
+        // check if any pins are low, but were high previously
+        mask = 1;
+        for (i=0; i<8; i++) {
+            if (((mux1 & mask) == 0) && (mux1_prev & mask) != 0)
+            {
+                usb_keyboard_press(number_keys[i], 0);
+            }
+            //~ else if (((b & mask) != 0) && (b_prev & mask) == 0)
+            //~ {
+                //~ usb_keyboard_press(number_keys[i], 0);
+            //~ }
+            mask = mask << 1;
+        }
+
+        // now the current pins will be the previous, and
+        // wait a short delay so we're not highly sensitive
+        // to mechanical "bounce".
+        mux1_prev = mux1;
+        
+        PORTB &= ~(1<<5);
+        _delay_ms(2);
+        
+        mux0 = PINB;
+        
+        mask = (1<<4);
+        if (((mux0 & mask) == 0) && (mux0_prev & mask) != 0)
+        {
+            usb_keyboard_press(KEY_Z, 0);
+        }
+        mask = (1<<6);
+        if (((mux0 & mask) == 0) && (mux0_prev & mask) != 0)
+        {
+            usb_keyboard_press(KEY_X, 0);
+        }
+        
+        mux0_prev = mux0;
+        
+            
+        PORTB |= (1<<5);
+        _delay_ms(2);
     }
 }
+
