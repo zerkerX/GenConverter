@@ -241,7 +241,7 @@ static volatile uint8_t usb_configuration=0;
 uint8_t keyboard_modifier_keys=0;
 
 // which keys are currently pressed, up to 6 keys may be down at once
-uint8_t keyboard_keys[6]={0,0,0,0,0,0};
+uint8_t keyboard_keys[MAX_PRESSED_KEYS]={0,0,0,0,0,0};
 
 // protocol setting from the host.  We use exactly the same report
 // either way, so this variable only stores the setting since we

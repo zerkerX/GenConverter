@@ -26,7 +26,7 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 #include "usb_keyboard.h"
-
+#include <stdbool.h>
 
 #define CPU_PRESCALE(n) (CLKPR = 0x80, CLKPR = (n))
 
@@ -42,16 +42,114 @@
  * For Genesis, 5 should be the MUX
  */ 
 
-uint8_t number_keys[]=
-    {KEY_0,KEY_1,KEY_2,KEY_3,KEY_4,KEY_5,KEY_6,KEY_7};
+/* Going to waste one position, but it's worth it for a default of unassigned
+ * in the mapping arrays */
+enum gen_buttons {
+    GEN_UNASSIGNED = 0,
+    GEN_RIGHT,
+    GEN_LEFT,
+    GEN_UP,
+    GEN_DOWN,
+    GEN_A,
+    GEN_B,
+    GEN_C,
+    GEN_START,
+    GEN_X,
+    GEN_Y,
+    GEN_Z,
+    GEN_MODE,
+    NUM_GEN_BUTTONS
+};
 
-uint16_t idle_count=0;
+static const uint8_t button_mappings[NUM_GEN_BUTTONS] = 
+{
+    [GEN_RIGHT] = KEY_RIGHT,
+    [GEN_LEFT] = KEY_LEFT,
+    [GEN_UP] = KEY_UP,
+    [GEN_DOWN] = KEY_DOWN,
+    [GEN_A] = KEY_Z,
+    [GEN_B] = KEY_X,
+    [GEN_C] = KEY_C,
+    [GEN_START] = KEY_ENTER,
+    [GEN_X] = KEY_A,
+    [GEN_Y] = KEY_S,
+    [GEN_Z] = KEY_D,
+    [GEN_MODE] = KEY_SPACE
+};
+
+static bool button_states[NUM_GEN_BUTTONS] = { false };
+
+static const enum gen_buttons mux1_map[8] =
+{
+    [0] = GEN_RIGHT,
+    [1] = GEN_LEFT,
+    [2] = GEN_DOWN,
+    [3] = GEN_UP,
+    [4] = GEN_B,
+    [6] = GEN_C
+};
+
+static const enum gen_buttons mux0_map[8] =
+{
+    [4] = GEN_A,
+    [6] = GEN_START
+};
+
+#define MUX_PIN 5
+
+
+void update_mux(bool muxstate, const enum gen_buttons mux_map[])
+{
+    uint8_t portvals, i;
+    enum gen_buttons button;
+        
+    if (muxstate)
+        PORTB |= (1<<5);
+    else
+        PORTB &= ~(1<<5);
+    _delay_ms(1);
+    
+    portvals = PINB;
+    
+    for (i = 0; i < 8; i++)
+    {
+        button = mux_map[i];
+        
+        if (button != GEN_UNASSIGNED)
+        {
+            button_states[button] = (portvals & (1 << i)) != 0 ? true : false;
+        }
+    }
+}
+
+
+void update_keyboard_state(void)
+{
+    uint8_t i;
+    enum gen_buttons button;
+    
+    for (i = 0; i < MAX_PRESSED_KEYS; i++)
+    {
+        keyboard_keys[i] = 0;
+    }
+    
+    i = 0;
+    for (button = GEN_RIGHT; button < NUM_GEN_BUTTONS; button++)
+    {
+        if (button_states[button] && i < MAX_PRESSED_KEYS)
+        {
+            keyboard_keys[i] = button_mappings[button];
+            i++;
+        }
+    }
+    
+    usb_keyboard_send();
+}
+
+
 
 int main(void)
 {
-    uint8_t mux1, mux0, mask, i;
-    uint8_t mux1_prev=0xFF, mux0_prev=0xFF;
-
     // set for 16 MHz clock
     CPU_PRESCALE(0);
     
@@ -70,49 +168,9 @@ int main(void)
 
     while (1)
     {
-        // read all port B and port D pins
-        mux1 = PINB;
-
-        // check if any pins are low, but were high previously
-        mask = 1;
-        for (i=0; i<8; i++) {
-            if (((mux1 & mask) == 0) && (mux1_prev & mask) != 0)
-            {
-                usb_keyboard_press(number_keys[i], 0);
-            }
-            //~ else if (((b & mask) != 0) && (b_prev & mask) == 0)
-            //~ {
-                //~ usb_keyboard_press(number_keys[i], 0);
-            //~ }
-            mask = mask << 1;
-        }
-
-        // now the current pins will be the previous, and
-        // wait a short delay so we're not highly sensitive
-        // to mechanical "bounce".
-        mux1_prev = mux1;
-        
-        PORTB &= ~(1<<5);
-        _delay_ms(2);
-        
-        mux0 = PINB;
-        
-        mask = (1<<4);
-        if (((mux0 & mask) == 0) && (mux0_prev & mask) != 0)
-        {
-            usb_keyboard_press(KEY_Z, 0);
-        }
-        mask = (1<<6);
-        if (((mux0 & mask) == 0) && (mux0_prev & mask) != 0)
-        {
-            usb_keyboard_press(KEY_X, 0);
-        }
-        
-        mux0_prev = mux0;
-        
-            
-        PORTB |= (1<<5);
-        _delay_ms(2);
+        update_mux(true, mux1_map);
+        update_mux(false, mux0_map);
+        update_keyboard_state();
     }
 }
 
