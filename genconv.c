@@ -61,6 +61,12 @@ enum gen_buttons {
     NUM_GEN_BUTTONS
 };
 
+enum gamepad_mode {
+    MODE_C64 = 0,
+    MODE_3BUTTON,
+    MODE_6BUTTON
+};
+
 static const uint8_t button_mappings[NUM_GEN_BUTTONS] = 
 {
     [GEN_RIGHT] = KEY_RIGHT,
@@ -96,7 +102,7 @@ static const enum gen_buttons mux0_map[8] =
 };
 
 #define MUX_PIN 5
-
+#define LEFT_RIGHT_MASK 0x03
 
 void update_mux(bool muxstate, const enum gen_buttons mux_map[])
 {
@@ -150,6 +156,8 @@ void update_keyboard_state(void)
 
 int main(void)
 {
+    enum gamepad_mode gpmode;
+    
     // set for 16 MHz clock
     CPU_PRESCALE(0);
     
@@ -168,8 +176,23 @@ int main(void)
 
     while (1)
     {
+        gpmode = MODE_C64;
         update_mux(true, mux1_map);
         update_mux(false, mux0_map);
+        if ((PINB & LEFT_RIGHT_MASK) == LEFT_RIGHT_MASK)
+        {
+            gpmode = MODE_3BUTTON;
+            /* TODO: Continue to test for 6 button now.
+             * Maybe don't even need the mode variable? */
+        }
+        else
+        {
+            /* Re-order the buttons to allow C64 buttons to be primary */
+            button_states[GEN_A] = button_states[GEN_C];
+            button_states[GEN_C] = false;
+            button_states[GEN_START] = false;
+        }
+        
         update_keyboard_state();
     }
 }

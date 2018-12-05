@@ -26,7 +26,7 @@ long_line_behaviour=1
 long_line_column=72
 
 [files]
-current_page=2
-FILE_NAME_0=0;C;0;EUTF-8;0;1;0;%2Fusr%2Flocal%2Fsrc%2FTeensy%2FGenConverter%2Fgenconv.c;0;4
-FILE_NAME_1=0;C;0;EUTF-8;0;1;0;%2Fusr%2Flocal%2Fsrc%2FTeensy%2FGenConverter%2Fusb_keyboard.c;0;4
-FILE_NAME_2=0;C;0;EUTF-8;0;1;0;%2Fusr%2Flocal%2Fsrc%2FTeensy%2FGenConverter%2Fusb_keyboard.h;0;4
+current_page=0
+FILE_NAME_0=953;C;0;EUTF-8;0;1;0;%2Fusr%2Flocal%2Fsrc%2FTeensy%2FGenConverter%2Fgenconv.c;0;4
+FILE_NAME_1=9964;C;0;EUTF-8;0;1;0;%2Fusr%2Flocal%2Fsrc%2FTeensy%2FGenConverter%2Fusb_keyboard.c;0;4
+FILE_NAME_2=288;C;0;EUTF-8;0;1;0;%2Fusr%2Flocal%2Fsrc%2FTeensy%2FGenConverter%2Fusb_keyboard.h;0;4
