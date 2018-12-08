@@ -91,14 +91,14 @@ static const enum gen_buttons mux1_map[8] =
     [1] = GEN_LEFT,
     [2] = GEN_DOWN,
     [3] = GEN_UP,
-    [4] = GEN_B,
-    [6] = GEN_C
+    [4] = GEN_C,
+    [6] = GEN_B
 };
 
 static const enum gen_buttons mux0_map[8] =
 {
-    [4] = GEN_A,
-    [6] = GEN_START
+    [4] = GEN_START,
+    [6] = GEN_A
 };
 
 #define MUX_PIN 5
@@ -123,7 +123,7 @@ void update_mux(bool muxstate, const enum gen_buttons mux_map[])
         
         if (button != GEN_UNASSIGNED)
         {
-            button_states[button] = (portvals & (1 << i)) != 0 ? true : false;
+            button_states[button] = (portvals & (1 << i)) == 0 ? true : false;
         }
     }
 }
@@ -179,7 +179,7 @@ int main(void)
         gpmode = MODE_C64;
         update_mux(true, mux1_map);
         update_mux(false, mux0_map);
-        if ((PINB & LEFT_RIGHT_MASK) == LEFT_RIGHT_MASK)
+        if ((PINB & LEFT_RIGHT_MASK) == 0)
         {
             gpmode = MODE_3BUTTON;
             /* TODO: Continue to test for 6 button now.
@@ -188,7 +188,8 @@ int main(void)
         else
         {
             /* Re-order the buttons to allow C64 buttons to be primary */
-            button_states[GEN_A] = button_states[GEN_C];
+            button_states[GEN_A] = button_states[GEN_B];
+            button_states[GEN_B] = button_states[GEN_C];
             button_states[GEN_C] = false;
             button_states[GEN_START] = false;
         }

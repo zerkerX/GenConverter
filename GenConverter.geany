@@ -20,6 +20,8 @@ indent_mode=2
 [project]
 name=GenConverter
 base_path=/usr/local/src/Teensy/GenConverter
+description=
+file_patterns=
 
 [long line marker]
 long_line_behaviour=1
@@ -27,6 +29,11 @@ long_line_column=72
 
 [files]
 current_page=0
-FILE_NAME_0=953;C;0;EUTF-8;0;1;0;%2Fusr%2Flocal%2Fsrc%2FTeensy%2FGenConverter%2Fgenconv.c;0;4
+FILE_NAME_0=3559;C;0;EUTF-8;0;1;0;%2Fusr%2Flocal%2Fsrc%2FTeensy%2FGenConverter%2Fgenconv.c;0;4
 FILE_NAME_1=9964;C;0;EUTF-8;0;1;0;%2Fusr%2Flocal%2Fsrc%2FTeensy%2FGenConverter%2Fusb_keyboard.c;0;4
-FILE_NAME_2=288;C;0;EUTF-8;0;1;0;%2Fusr%2Flocal%2Fsrc%2FTeensy%2FGenConverter%2Fusb_keyboard.h;0;4
+FILE_NAME_2=230;C;0;EUTF-8;0;1;0;%2Fusr%2Flocal%2Fsrc%2FTeensy%2FGenConverter%2Fusb_keyboard.h;0;4
+
+[build-menu]
+NF_03_LB=Teensy Load
+NF_03_CM=teensy_loader_cli -mmcu=atmega32u4 -w genconv.hex
+NF_03_WD=
