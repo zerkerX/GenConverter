@@ -57,8 +57,6 @@ enum gen_buttons {
 /** Current pressed/release state of each Sega Genesis button */
 static bool button_states[NUM_GEN_BUTTONS] = { false };
 
-static bool six_button_pad = false;
-
 /** Map of PortB pins to Genesis buttons when mux is high */
 static const enum gen_buttons mux1_map[8] =
 {
@@ -136,71 +134,29 @@ void load_buttons(const enum gen_buttons mux_map[])
  * Genesis button states */
 void update_usb_gamepad_state(void)
 {
-    if (six_button_pad)
-    {
-        /* 6-Button layout is more similar to existing 
-         * PS3 fighting sticks (though proving L1/R1 instead of R1/R2)*/
-        gamepad_state.square_btn = button_states[GEN_X];
-        gamepad_state.cross_btn = button_states[GEN_A];
-        gamepad_state.circle_btn = button_states[GEN_B];
-        gamepad_state.triangle_btn = button_states[GEN_Y];
-        gamepad_state.l1_btn = button_states[GEN_Z];
-        gamepad_state.r1_btn = button_states[GEN_C];
-        
-        gamepad_state.select_btn = button_states[GEN_MODE];
-    }
-    else
-    {
-        /* 3-Button layout prefers having all three buttons on the face */
-        gamepad_state.square_btn = button_states[GEN_A];
-        gamepad_state.cross_btn = button_states[GEN_B];
-        gamepad_state.circle_btn = button_states[GEN_C];
-    }
+    gamepad_state.button1 = button_states[GEN_A];
+    gamepad_state.button2 = button_states[GEN_B];
+    gamepad_state.button3 = button_states[GEN_C];
+    gamepad_state.button4 = button_states[GEN_X];
+    gamepad_state.button5 = button_states[GEN_Y];
+    gamepad_state.button6 = button_states[GEN_Z];
     
-    gamepad_state.start_btn = button_states[GEN_START];
+    gamepad_state.button_Select = button_states[GEN_MODE];
+    gamepad_state.button_Start = button_states[GEN_START];
     
-    if (button_states[GEN_UP])
-    {
-        if (button_states[GEN_LEFT])
-        {
-            gamepad_state.direction = dir_upleft;
-        }
-        else if (button_states[GEN_RIGHT])
-        {
-            gamepad_state.direction = dir_upright;
-        }
-        else
-        {
-            gamepad_state.direction = dir_up;
-        }
-    }
-    else if (button_states[GEN_DOWN])
-    {
-        if (button_states[GEN_LEFT])
-        {
-            gamepad_state.direction = dir_downleft;
-        }
-        else if (button_states[GEN_RIGHT])
-        {
-            gamepad_state.direction = dir_downright;
-        }
-        else
-        {
-            gamepad_state.direction = dir_down;
-        }
-    }
-    else if (button_states[GEN_LEFT])
-    {
-        gamepad_state.direction = dir_left;
-    }
+    if (button_states[GEN_LEFT])
+        gamepad_state.xAxis = 0;
     else if (button_states[GEN_RIGHT])
-    {
-        gamepad_state.direction = dir_right;
-    }
+        gamepad_state.xAxis = 255;
     else
-    {
-        gamepad_state.direction = dir_center;
-    }
+        gamepad_state.xAxis = 127;
+
+    if (button_states[GEN_UP])
+        gamepad_state.yAxis = 0;
+    else if (button_states[GEN_DOWN])
+        gamepad_state.yAxis = 255;
+    else
+        gamepad_state.yAxis = 127;
     
     usb_gamepad_send();
 }
@@ -228,7 +184,6 @@ int main(void)
     while (1)
     {
         usb_gamepad_reset_state();
-        six_button_pad = false;
         
         mux_high();
         load_buttons(mux1_map);
@@ -248,8 +203,6 @@ int main(void)
             
             if ((PINB & ALL_DIRECTION_MASK) == 0)
             {
-                six_button_pad = true;
-                
                 /* Confirmed 6-button pad */
                 mux_high();
                 load_buttons(sixbutton_map);

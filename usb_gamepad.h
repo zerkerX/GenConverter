@@ -21,50 +21,23 @@ enum usb_gp_directions{
 
 
 typedef struct {
-	// digital buttons, 0 = off, 1 = on
+    uint8_t     xAxis;
+    uint8_t     yAxis;
 
-	uint8_t square_btn : 1;
-	uint8_t cross_btn : 1;
-	uint8_t circle_btn : 1;
-	uint8_t triangle_btn : 1;
-
-	uint8_t l1_btn : 1;
-	uint8_t r1_btn : 1;
-	uint8_t l2_btn : 1;
-	uint8_t r2_btn : 1;
-
-	uint8_t select_btn : 1;
-	uint8_t start_btn : 1;
-	uint8_t : 2;
-	uint8_t ps_btn : 1;
-	uint8_t : 3;
-
-	// digital direction, use the dir_* constants(enum)
-	// 8 = center, 0 = up, 1 = up/right, 2 = right, 3 = right/down
-	// 4 = down, 5 = down/left, 6 = left, 7 = left/up
-
-	uint8_t direction;
-
-	// left and right analog sticks, 0x00 left/up, 0x80 middle, 0xff right/down
-
-	uint8_t l_x_axis;
-	uint8_t l_y_axis;
-	uint8_t r_x_axis;
-	uint8_t r_y_axis;
-
-	uint8_t unknown[4];
-
-	// button axis, 0x00 = unpressed, 0xff = fully pressed
-
-	uint8_t triangle_axis;
-	uint8_t circle_axis;
-	uint8_t cross_axis;
-	uint8_t square_axis;
-
-	uint8_t l1_axis;
-	uint8_t r1_axis;
-	uint8_t l2_axis;
-	uint8_t r2_axis;
+    // Basic buttons vary by application. Should start populating from
+    // the beginning. Common PS3 uses (e.g. using generic pad) marked in comments.
+    uint16_t   button1: 1; // Square
+    uint16_t   button2: 1; // X
+    uint16_t   button3: 1; // Circle
+    uint16_t   button4: 1; // Triangle
+    uint16_t   button5: 1; // L1
+    uint16_t   button6: 1; // R1
+    uint16_t   button7: 1; // L2
+    uint16_t   button8: 1; // R2
+    
+    // Give buttons 9/10 common names to match most uses
+    uint16_t   button_Select: 1;
+    uint16_t   button_Start: 1;
 } gamepad_state_t;
 
 extern gamepad_state_t gamepad_state;
