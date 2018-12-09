@@ -25,7 +25,7 @@
 #include <avr/pgmspace.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
-#include "usb_keyboard.h"
+#include "usb_gamepad.h"
 #include <stdbool.h>
 #include <string.h>
 
@@ -53,25 +53,11 @@ enum gen_buttons {
     NUM_GEN_BUTTONS
 };
 
-/** Mapping of Sega Genesis button to keyboard key */
-static const uint8_t button_mappings[NUM_GEN_BUTTONS] = 
-{
-    [GEN_RIGHT] = KEY_RIGHT,
-    [GEN_LEFT] = KEY_LEFT,
-    [GEN_UP] = KEY_UP,
-    [GEN_DOWN] = KEY_DOWN,
-    [GEN_A] = KEY_Z,
-    [GEN_B] = KEY_X,
-    [GEN_C] = KEY_C,
-    [GEN_START] = KEY_ENTER,
-    [GEN_X] = KEY_A,
-    [GEN_Y] = KEY_S,
-    [GEN_Z] = KEY_D,
-    [GEN_MODE] = KEY_SPACE
-};
 
 /** Current pressed/release state of each Sega Genesis button */
 static bool button_states[NUM_GEN_BUTTONS] = { false };
+
+static bool six_button_pad = false;
 
 /** Map of PortB pins to Genesis buttons when mux is high */
 static const enum gen_buttons mux1_map[8] =
@@ -146,30 +132,77 @@ void load_buttons(const enum gen_buttons mux_map[])
     }
 }
 
-
-/** Update the Keyboard button pressed/release status based on 
+/** Update the USB HID Gamepad pressed/release status based on 
  * Genesis button states */
-void update_keyboard_state(void)
+void update_usb_gamepad_state(void)
 {
-    uint8_t i;
-    enum gen_buttons button;
-    
-    for (i = 0; i < MAX_PRESSED_KEYS; i++)
+    if (six_button_pad)
     {
-        keyboard_keys[i] = 0;
+        /* 6-Button layout is more similar to existing 
+         * PS3 fighting sticks (though proving L1/R1 instead of R1/R2)*/
+        gamepad_state.square_btn = button_states[GEN_X];
+        gamepad_state.cross_btn = button_states[GEN_A];
+        gamepad_state.circle_btn = button_states[GEN_B];
+        gamepad_state.triangle_btn = button_states[GEN_Y];
+        gamepad_state.l1_btn = button_states[GEN_Z];
+        gamepad_state.r1_btn = button_states[GEN_C];
+        
+        gamepad_state.select_btn = button_states[GEN_MODE];
+    }
+    else
+    {
+        /* 3-Button layout prefers having all three buttons on the face */
+        gamepad_state.square_btn = button_states[GEN_A];
+        gamepad_state.cross_btn = button_states[GEN_B];
+        gamepad_state.circle_btn = button_states[GEN_C];
     }
     
-    i = 0;
-    for (button = GEN_RIGHT; button < NUM_GEN_BUTTONS; button++)
+    gamepad_state.start_btn = button_states[GEN_START];
+    
+    if (button_states[GEN_UP])
     {
-        if (button_states[button] && i < MAX_PRESSED_KEYS)
+        if (button_states[GEN_LEFT])
         {
-            keyboard_keys[i] = button_mappings[button];
-            i++;
+            gamepad_state.direction = dir_upleft;
+        }
+        else if (button_states[GEN_RIGHT])
+        {
+            gamepad_state.direction = dir_upright;
+        }
+        else
+        {
+            gamepad_state.direction = dir_up;
         }
     }
+    else if (button_states[GEN_DOWN])
+    {
+        if (button_states[GEN_LEFT])
+        {
+            gamepad_state.direction = dir_downleft;
+        }
+        else if (button_states[GEN_RIGHT])
+        {
+            gamepad_state.direction = dir_downright;
+        }
+        else
+        {
+            gamepad_state.direction = dir_down;
+        }
+    }
+    else if (button_states[GEN_LEFT])
+    {
+        gamepad_state.direction = dir_left;
+    }
+    else if (button_states[GEN_RIGHT])
+    {
+        gamepad_state.direction = dir_right;
+    }
+    else
+    {
+        gamepad_state.direction = dir_center;
+    }
     
-    usb_keyboard_send();
+    usb_gamepad_send();
 }
 
 
@@ -194,7 +227,8 @@ int main(void)
 
     while (1)
     {
-        memset(button_states, 0, sizeof(button_states));
+        usb_gamepad_reset_state();
+        six_button_pad = false;
         
         mux_high();
         load_buttons(mux1_map);
@@ -214,6 +248,8 @@ int main(void)
             
             if ((PINB & ALL_DIRECTION_MASK) == 0)
             {
+                six_button_pad = true;
+                
                 /* Confirmed 6-button pad */
                 mux_high();
                 load_buttons(sixbutton_map);
@@ -230,7 +266,7 @@ int main(void)
             button_states[GEN_C] = false;
         }
         
-        update_keyboard_state();
+        update_usb_gamepad_state();
         _delay_ms(10);
     }
 }
