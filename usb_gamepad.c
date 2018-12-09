@@ -1,11 +1,8 @@
 /* Genesis to USB Converter
  * Copyright (C) 2018 Ryan Armstrong <git@zerker.ca>
  *
- * Based on works by:
- *   John Burkert <https://github.com/johnburkert/YeOldeJoystick>
+ * Based on work by:
  *   Josh Kropf <https://github.com/jiggak/teensy-snes>
- *   grunskis <http://github.com/grunskis/gamepad>
- *   Toodles <http://forums.shoryuken.com/showthread.php?t=131230>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -59,10 +56,12 @@
 #define STR_PRODUCT     L"Sega Genesis Converter"
 
 
-// Obviously a hobby project won't have a Vendor/Product ID. Just mimic the
-// Logitech WingMan Gamepad
-#define VENDOR_ID       0x046d
-#define PRODUCT_ID      0xc209
+// Mac OS-X and Linux automatically load the correct drivers.  On
+// Windows, even though the driver is supplied by Microsoft, an
+// INF file is needed to load the driver.  These numbers need to
+// match the INF file.
+#define VENDOR_ID		0x16C0
+#define PRODUCT_ID		0x27dc
 
 
 // USB devices are supposed to implment a halt feature, which is
@@ -225,12 +224,12 @@ static const struct usb_string_descriptor_struct PROGMEM string2 = {
 
 // This table defines which descriptor data is sent for each specific
 // request from the host (in wValue and wIndex).
-static struct descriptor_list_struct {
+static const struct descriptor_list_struct {
     uint16_t    wValue;
     uint16_t    wIndex;
     const uint8_t   *addr;
     uint8_t     length;
-} PROGMEM const descriptor_list[] = {
+} PROGMEM descriptor_list[] = {
     {0x0100, 0x0000, device_descriptor, sizeof(device_descriptor)},
     {0x0200, 0x0000, config1_descriptor, sizeof(config1_descriptor)},
     {0x2100, GAMEPAD_INTERFACE, config1_descriptor+GAMEPAD_HID_DESC_OFFSET, 9},
