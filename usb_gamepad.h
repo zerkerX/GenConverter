@@ -1,9 +1,26 @@
-/* Teensy SNES Gamepad
- * Copyright (C) 2011 Josh Kropf <josh@slashdev.ca>
+/* Genesis to USB Converter
+ * Copyright (C) 2018 Ryan Armstrong <git@zerker.ca>
  *
- * Based on keyboard example for Teensy USB Development Board
+ * Based on work by:
+ *   Josh Kropf <https://github.com/jiggak/teensy-snes>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/* USB Keyboard Example for Teensy USB Development Board
  * http://www.pjrc.com/teensy/usb_keyboard.html
- * Copyright (c) 2008 PJRC.COM, LLC
+ * Copyright (c) 2009 PJRC.COM, LLC
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
