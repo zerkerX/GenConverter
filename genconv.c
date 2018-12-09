@@ -27,23 +27,15 @@
 #include <util/delay.h>
 #include "usb_keyboard.h"
 #include <stdbool.h>
+#include <string.h>
 
 #define CPU_PRESCALE(n) (CLKPR = 0x80, CLKPR = (n))
 
-/* Notes:
- * For C64 mode:
- * 0 = Right
- * 1 = Left
- * 2 = Down
- * 3 = Up
- * 6 = B1
- * 4 = B2
+/** Type for all available Sega Genesis buttons
  * 
- * For Genesis, 5 should be the MUX
- */ 
-
-/* Going to waste one position, but it's worth it for a default of unassigned
- * in the mapping arrays */
+ * Sizing for key mapping/state arrys based on the NUM member of this type.
+ * Allocating a spot for UNASSIGNED is going to waste one position, 
+ * but it's worth it for a default of unassigned in the bit mapping arrays */
 enum gen_buttons {
     GEN_UNASSIGNED = 0,
     GEN_RIGHT,
@@ -61,12 +53,7 @@ enum gen_buttons {
     NUM_GEN_BUTTONS
 };
 
-enum gamepad_mode {
-    MODE_C64 = 0,
-    MODE_3BUTTON,
-    MODE_6BUTTON
-};
-
+/** Mapping of Sega Genesis button to keyboard key */
 static const uint8_t button_mappings[NUM_GEN_BUTTONS] = 
 {
     [GEN_RIGHT] = KEY_RIGHT,
@@ -83,8 +70,10 @@ static const uint8_t button_mappings[NUM_GEN_BUTTONS] =
     [GEN_MODE] = KEY_SPACE
 };
 
+/** Current pressed/release state of each Sega Genesis button */
 static bool button_states[NUM_GEN_BUTTONS] = { false };
 
+/** Map of PortB pins to Genesis buttons when mux is high */
 static const enum gen_buttons mux1_map[8] =
 {
     [0] = GEN_RIGHT,
@@ -95,26 +84,55 @@ static const enum gen_buttons mux1_map[8] =
     [6] = GEN_B
 };
 
+/** Map of PortB pins to Genesis buttons when mux is low */
 static const enum gen_buttons mux0_map[8] =
 {
     [4] = GEN_START,
     [6] = GEN_A
 };
 
+/** Map of PortB pins to Genesis buttons when the extra
+ * buttons for the 6-button pad are reported. */
+static const enum gen_buttons sixbutton_map[8] =
+{
+    [0] = GEN_MODE,
+    [1] = GEN_X,
+    [2] = GEN_Y,
+    [3] = GEN_Z
+};
+
+/** Which Pin in Port B is used for mux control */
 #define MUX_PIN 5
+
+/** Mask to detect a 3-button Genesis pad */
 #define LEFT_RIGHT_MASK 0x03
 
-void update_mux(bool muxstate, const enum gen_buttons mux_map[])
+/** Mask to detect a 6-button Genesis pad */
+#define ALL_DIRECTION_MASK 0x0F
+
+static inline void mux_high(void)
+{
+    PORTB |= (1<<5);
+    _delay_us(100);
+}
+
+static inline void mux_low(void)
+{
+    PORTB &= ~(1<<5);
+    _delay_us(100);
+}
+
+
+/** Loads the current button states from Port B according to 
+ * the provided map
+ * 
+ * \param mux_map Array mapping pin positions to Genesis buttons
+ */
+void load_buttons(const enum gen_buttons mux_map[])
 {
     uint8_t portvals, i;
     enum gen_buttons button;
         
-    if (muxstate)
-        PORTB |= (1<<5);
-    else
-        PORTB &= ~(1<<5);
-    _delay_ms(1);
-    
     portvals = PINB;
     
     for (i = 0; i < 8; i++)
@@ -129,6 +147,8 @@ void update_mux(bool muxstate, const enum gen_buttons mux_map[])
 }
 
 
+/** Update the Keyboard button pressed/release status based on 
+ * Genesis button states */
 void update_keyboard_state(void)
 {
     uint8_t i;
@@ -153,11 +173,9 @@ void update_keyboard_state(void)
 }
 
 
-
+/** Main program loop */
 int main(void)
 {
-    enum gamepad_mode gpmode;
-    
     // set for 16 MHz clock
     CPU_PRESCALE(0);
     
@@ -176,25 +194,44 @@ int main(void)
 
     while (1)
     {
-        gpmode = MODE_C64;
-        update_mux(true, mux1_map);
-        update_mux(false, mux0_map);
+        memset(button_states, 0, sizeof(button_states));
+        
+        mux_high();
+        load_buttons(mux1_map);
+        mux_low();
+
         if ((PINB & LEFT_RIGHT_MASK) == 0)
         {
-            gpmode = MODE_3BUTTON;
-            /* TODO: Continue to test for 6 button now.
-             * Maybe don't even need the mode variable? */
+            /* Confirmed 3-button pad */
+            load_buttons(mux0_map);
+            
+            /* Detection sequence for 6-button pad now... 
+             * Also see https://segaretro.org/Six_Button_Control_Pad_(Mega_Drive) */
+            mux_high();
+            mux_low();
+            mux_high();
+            mux_low();
+            
+            if ((PINB & ALL_DIRECTION_MASK) == 0)
+            {
+                /* Confirmed 6-button pad */
+                mux_high();
+                load_buttons(sixbutton_map);
+                mux_low();
+            }
         }
         else
         {
-            /* Re-order the buttons to allow C64 buttons to be primary */
+            /* 1/2 button 8-bit computer stick or SMS pad. 
+             * Re-order the buttons so the primary 8-bit computer
+             * button is A, and the optional other button is B */
             button_states[GEN_A] = button_states[GEN_B];
             button_states[GEN_B] = button_states[GEN_C];
             button_states[GEN_C] = false;
-            button_states[GEN_START] = false;
         }
         
         update_keyboard_state();
+        _delay_ms(10);
     }
 }
 

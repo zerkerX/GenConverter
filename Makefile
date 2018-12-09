@@ -92,7 +92,7 @@ ASRC =
 # Optimization level, can be [0, 1, 2, 3, s]. 
 #     0 = turn off optimization. s = optimize for size.
 #     (Note: 3 is not always the best optimization level. See avr-libc FAQ.)
-OPT = s
+OPT = 2
 
 
 # Debugging format.
@@ -148,6 +148,7 @@ CFLAGS += -ffunction-sections
 CFLAGS += -fpack-struct
 CFLAGS += -fshort-enums
 CFLAGS += -Wall
+CFLAGS += -Wextra
 CFLAGS += -Wstrict-prototypes
 #CFLAGS += -mshort-calls
 #CFLAGS += -fno-unit-at-a-time
@@ -339,6 +340,7 @@ SIZE = avr-size
 AR = avr-ar rcs
 NM = avr-nm
 AVRDUDE = avrdude
+TEENSYLOAD=teensy_loader_cli
 REMOVE = rm -f
 REMOVEDIR = rm -rf
 COPY = cp
@@ -598,6 +600,8 @@ clean_list :
 	$(REMOVE) $(SRC:.c=.i)
 	$(REMOVEDIR) .dep
 
+install: $(TARGET).hex
+	$(TEENSYLOAD) -mmcu=$(MCU) -w $(TARGET).hex
 
 # Create object files directory
 $(shell mkdir $(OBJDIR) 2>/dev/null)
@@ -610,4 +614,4 @@ $(shell mkdir $(OBJDIR) 2>/dev/null)
 # Listing of phony targets.
 .PHONY : all begin finish end sizebefore sizeafter gccversion \
 build elf hex eep lss sym coff extcoff \
-clean clean_list program debug gdb-config
+install clean clean_list program debug gdb-config
