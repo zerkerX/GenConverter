@@ -1,7 +1,8 @@
-/* PS3 Teensy HID Gamepad
- * Copyright (C) 2010 Josh Kropf <josh@slashdev.ca>
+/* Genesis to USB Converter
+ * Copyright (C) 2018 Ryan Armstrong <git@zerker.ca>
  *
  * Based on works by:
+ *   Josh Kropf <https://github.com/jiggak/teensy-snes>
  *   grunskis <http://github.com/grunskis/gamepad>
  *   Toodles <http://forums.shoryuken.com/showthread.php?t=131230>
  *

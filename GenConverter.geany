@@ -29,11 +29,12 @@ long_line_column=72
 
 [files]
 current_page=0
-FILE_NAME_0=4404;C;0;EUTF-8;0;1;0;%2Fusr%2Flocal%2Fsrc%2FTeensy%2FGenConverter%2Fgenconv.c;0;4
-FILE_NAME_1=19657;C;0;EUTF-8;0;1;0;%2Fusr%2Flocal%2Fsrc%2FTeensy%2FGenConverter%2Fusb_keyboard.c;0;4
-FILE_NAME_2=230;C;0;EUTF-8;0;1;0;%2Fusr%2Flocal%2Fsrc%2FTeensy%2FGenConverter%2Fusb_keyboard.h;0;4
-FILE_NAME_3=8917;C;0;EUTF-8;0;1;0;%2Fusr%2Flib%2Favr%2Finclude%2Futil%2Fdelay.h;0;4
-FILE_NAME_4=16372;Make;0;EISO-8859-1;1;1;0;%2Fusr%2Flocal%2Fsrc%2FTeensy%2FGenConverter%2FMakefile;0;4
+FILE_NAME_0=2218;C;0;EUTF-8;0;1;0;%2Fusr%2Flocal%2Fsrc%2FTeensy%2FGenConverter%2Fgenconv.c;0;4
+FILE_NAME_1=4114;Make;0;EISO-8859-1;1;1;0;%2Fusr%2Flocal%2Fsrc%2FTeensy%2FGenConverter%2FMakefile;0;4
+FILE_NAME_2=0;C;0;EUTF-8;0;1;0;%2Fusr%2Flocal%2Fsrc%2FTeensy%2FGenConverter%2Fgenesis_pad.c;0;4
+FILE_NAME_3=1528;C;0;EUTF-8;0;1;0;%2Fusr%2Flocal%2Fsrc%2FTeensy%2FGenConverter%2Fgenesis_pad.h;0;4
+FILE_NAME_4=0;C;0;EUTF-8;0;1;0;%2Fusr%2Flocal%2Fsrc%2FTeensy%2FGenConverter%2Fusb_gamepad.c;0;4
+FILE_NAME_5=0;C;0;EUTF-8;0;1;0;%2Fusr%2Flocal%2Fsrc%2FTeensy%2FGenConverter%2Fusb_gamepad.h;0;4
 
 [build-menu]
 NF_03_LB=
