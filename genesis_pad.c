@@ -1,9 +1,6 @@
 /* Genesis to USB Converter
  * Copyright (C) 2018 Ryan Armstrong <git@zerker.ca>
  *
- * Based on work by:
- *   Josh Kropf <https://github.com/jiggak/teensy-snes>
- *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
