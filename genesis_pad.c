@@ -126,8 +126,10 @@ void genesis_load(void)
          * Also see https://segaretro.org/Six_Button_Control_Pad_(Mega_Drive) */
         mux_high();
         mux_low();
-        mux_high();
-        mux_low();
+        
+        /* Technically there should be one more cycle here. However,
+         * my testing with the oscilloscope showed the "all zero"
+         * sequence appeared one cycle earlier than expected. */
         
         if ((PINB & ALL_DIRECTION_MASK) == 0)
         {
