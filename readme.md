@@ -8,7 +8,7 @@ the primary converted buttons, and won't end up with phantom button
 presses from incompatible pads (unlike some commercial converters)
 
 There are three branches of development maintained in this repository,
-depdending on intended use for the converter:
+depending on intended use for the converter:
 
  * **generic_usb** : Converts the pad to a generic USB HID controller. 
     Defines two axis and up to 10 buttons, though only a max of 8 are used.
