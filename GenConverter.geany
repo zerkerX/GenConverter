@@ -28,9 +28,9 @@ long_line_behaviour=1
 long_line_column=72
 
 [files]
-current_page=5
-FILE_NAME_0=0;C;0;EUTF-8;0;1;0;%2Fusr%2Flocal%2Fsrc%2FTeensy%2FGenConverter%2Fgenconv.c;0;4
-FILE_NAME_1=0;C;0;EUTF-8;0;1;0;%2Fusr%2Flocal%2Fsrc%2FTeensy%2FGenConverter%2Fgenesis_pad.c;0;4
+current_page=1
+FILE_NAME_0=2677;C;0;EUTF-8;0;1;0;%2Fusr%2Flocal%2Fsrc%2FTeensy%2FGenConverter%2Fgenconv.c;0;4
+FILE_NAME_1=3062;C;0;EUTF-8;0;1;0;%2Fusr%2Flocal%2Fsrc%2FTeensy%2FGenConverter%2Fgenesis_pad.c;0;4
 FILE_NAME_2=0;C;0;EUTF-8;0;1;0;%2Fusr%2Flocal%2Fsrc%2FTeensy%2FGenConverter%2Fgenesis_pad.h;0;4
 FILE_NAME_3=0;C;0;EUTF-8;0;1;0;%2Fusr%2Flocal%2Fsrc%2FTeensy%2FGenConverter%2Fusb_gamepad.c;0;4
 FILE_NAME_4=117;C;0;EUTF-8;0;1;0;%2Fusr%2Flocal%2Fsrc%2FTeensy%2FGenConverter%2Fusb_gamepad.h;0;4

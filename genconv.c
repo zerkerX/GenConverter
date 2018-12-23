@@ -83,7 +83,7 @@ int main(void)
         usb_gamepad_reset_state();
         genesis_load();
         update_usb_gamepad_state();
-        _delay_ms(10);
+        _delay_ms(3);
     }
 }
 
